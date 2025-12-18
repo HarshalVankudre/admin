@@ -17,6 +17,7 @@ import {
     X,
     ChevronDown
 } from 'lucide-react';
+import Markdown from 'react-markdown';
 import { adminApi } from '../services';
 import type { Message } from '../types';
 import './ConversationDetail.css';
@@ -227,16 +228,16 @@ interface MessageCardProps {
 }
 
 function MessageCard({ message: msg, searchQuery }: MessageCardProps) {
-    // Highlight search matches
-    const highlightText = (text: string) => {
-        if (!searchQuery) return text;
+    // Highlight search matches in content
+    const getHighlightedContent = () => {
+        if (!searchQuery) return msg.content;
 
-        const regex = new RegExp(`(${searchQuery.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
-        const parts = text.split(regex);
+        // Escape special regex characters in search query
+        const escaped = searchQuery.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const regex = new RegExp(`(${escaped})`, 'gi');
 
-        return parts.map((part, i) =>
-            regex.test(part) ? <mark key={i} className="highlight">{part}</mark> : part
-        );
+        // Replace matches with markdown bold + highlight span
+        return msg.content.replace(regex, '==$1==');
     };
 
     return (
@@ -259,7 +260,34 @@ function MessageCard({ message: msg, searchQuery }: MessageCardProps) {
                     )}
                 </div>
 
-                <div className="message-text">{highlightText(msg.content)}</div>
+                <div className="message-text markdown-content">
+                    <Markdown
+                        components={{
+                            // Style links
+                            a: ({ children, href }) => (
+                                <a href={href} target="_blank" rel="noopener noreferrer">
+                                    {children}
+                                </a>
+                            ),
+                            // Highlight search matches (using == syntax)
+                            p: ({ children }) => {
+                                if (typeof children === 'string' && children.includes('==')) {
+                                    const parts = children.split(/==(.*?)==/g);
+                                    return (
+                                        <p>
+                                            {parts.map((part, i) =>
+                                                i % 2 === 1 ? <mark key={i} className="highlight">{part}</mark> : part
+                                            )}
+                                        </p>
+                                    );
+                                }
+                                return <p>{children}</p>;
+                            }
+                        }}
+                    >
+                        {getHighlightedContent()}
+                    </Markdown>
+                </div>
 
                 {msg.tools_used && msg.tools_used.length > 0 && (
                     <div className="message-tools">
@@ -271,10 +299,11 @@ function MessageCard({ message: msg, searchQuery }: MessageCardProps) {
                 {msg.error && (
                     <div className="message-error">
                         <AlertTriangle size={14} />
-                        <span>{highlightText(msg.error)}</span>
+                        <span>{msg.error}</span>
                     </div>
                 )}
             </div>
         </div>
     );
 }
+
