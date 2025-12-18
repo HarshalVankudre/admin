@@ -1,9 +1,10 @@
 """
-Admin Dashboard Package
+Ruko Admin Dashboard Backend
 
-Contains all admin dashboard related functionality:
-- api.py: REST API endpoints (read-only)
-- main.py: FastAPI app that serves the dashboard UI
-- dashboard.html: Single-file admin UI
-- create_db.py: Creates the admin DB schema
+A FastAPI-based admin dashboard for monitoring chatbot analytics.
 """
+from .config import get_settings
+from .database import close_pool, init_pool
+
+__all__ = ["get_settings", "init_pool", "close_pool"]
+__version__ = "1.0.0"

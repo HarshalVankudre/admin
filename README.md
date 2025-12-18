@@ -207,19 +207,26 @@ ADMIN_DB_INIT_ON_STARTUP=0
 
 ```
 admin/
-├── � backend/             # Backend API server
-│   ├── �📄 main.py          # FastAPI application entry point
-│   ├── 📄 api.py           # Admin API endpoints & database logic
-│   ├── 📄 create_db.py     # Database schema initialization
-│   ├── 📄 requirements.txt # Python dependencies
-│   └── 📄 __init__.py      # Package init
-├── 📁 frontend/            # Frontend UI
-│   └── 📄 dashboard.html   # Single-page admin dashboard
-├── 📄 Dockerfile           # Container build instructions
-├── 📄 .env.example         # Environment template
-├── 📄 .gitignore           # Git ignored files
-├── 📄 README.md            # Documentation
-└── 📄 improvements.md      # Future enhancement ideas
+├── 📁 backend/              # Backend API server
+│   ├── 📄 main.py           # FastAPI application entry point
+│   ├── 📄 config.py         # Configuration settings
+│   ├── 📄 database.py       # Database connection pool & utilities
+│   ├── 📁 routes/           # API route handlers
+│   │   ├── 📄 __init__.py   # Route aggregation
+│   │   ├── 📄 health.py     # Health check endpoints
+│   │   ├── 📄 stats.py      # Statistics & activity endpoints
+│   │   ├── 📄 users.py      # User management endpoints
+│   │   ├── 📄 conversations.py  # Conversation endpoints
+│   │   └── 📄 messages.py   # Message endpoints
+│   ├── 📄 create_db.py      # Database schema initialization
+│   ├── 📄 requirements.txt  # Python dependencies
+│   └── 📄 __init__.py       # Package init
+├── 📁 frontend/             # Frontend UI
+│   └── 📄 dashboard.html    # Single-page admin dashboard
+├── 📄 Dockerfile            # Container build instructions
+├── 📄 .env.example          # Environment template
+├── 📄 .gitignore            # Git ignored files
+└── 📄 README.md             # Documentation
 ```
 
 ## 🔒 Security Notes
