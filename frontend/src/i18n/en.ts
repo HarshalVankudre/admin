@@ -61,6 +61,8 @@ export const en = {
         lastMessage: 'Last Message',
         avgResponse: 'Avg Response',
         noConversations: 'No conversations found',
+        duration: 'Duration',
+        noMatchingFilters: 'No conversations match your filters',
     },
     users: {
         title: 'Users',
