@@ -43,7 +43,7 @@ async def root():
 @app.get("/dashboard")
 async def dashboard():
     """Serve the dashboard HTML."""
-    static_path = Path(__file__).parent / "dashboard.html"
+    static_path = Path(__file__).parent.parent / "frontend" / "dashboard.html"
     if not static_path.exists():
         return {"error": "Dashboard file not found", "path": str(static_path)}
     return FileResponse(str(static_path), media_type="text/html")

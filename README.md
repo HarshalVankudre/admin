@@ -86,17 +86,17 @@ python -m venv venv
 source venv/bin/activate  # On Windows: venv\Scripts\activate
 
 # 3. Install dependencies
-pip install -r requirements.txt
+pip install -r backend/requirements.txt
 
 # 4. Configure environment
 cp .env.example .env
 # Edit .env with your PostgreSQL credentials
 
 # 5. Initialize database schema (first time only)
-python create_db.py
+python backend/create_db.py
 
 # 6. Run the application
-python main.py
+python backend/main.py
 ```
 
 ### 🌐 Access the Dashboard
@@ -207,14 +207,18 @@ ADMIN_DB_INIT_ON_STARTUP=0
 
 ```
 admin/
-├── 📄 main.py              # FastAPI application entry point
-├── 📄 api.py               # Admin API endpoints & database logic
-├── 📄 create_db.py         # Database schema initialization
-├── 📄 dashboard.html       # Single-page admin UI (embedded)
-├── 📄 requirements.txt     # Python dependencies
+├── � backend/             # Backend API server
+│   ├── �📄 main.py          # FastAPI application entry point
+│   ├── 📄 api.py           # Admin API endpoints & database logic
+│   ├── 📄 create_db.py     # Database schema initialization
+│   ├── 📄 requirements.txt # Python dependencies
+│   └── 📄 __init__.py      # Package init
+├── 📁 frontend/            # Frontend UI
+│   └── 📄 dashboard.html   # Single-page admin dashboard
 ├── 📄 Dockerfile           # Container build instructions
 ├── 📄 .env.example         # Environment template
 ├── 📄 .gitignore           # Git ignored files
+├── 📄 README.md            # Documentation
 └── 📄 improvements.md      # Future enhancement ideas
 ```
 
