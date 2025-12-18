@@ -1,6 +1,7 @@
 /**
  * Main layout with sidebar navigation
  */
+import { useState, useEffect } from 'react';
 import { NavLink, Outlet } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../contexts';
@@ -12,7 +13,10 @@ import {
     Sun,
     Moon,
     Languages,
-    Activity
+    Activity,
+    Database,
+    Clock,
+    Zap
 } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { adminApi } from '../services';
@@ -21,13 +25,21 @@ import './Layout.css';
 export function Layout() {
     const { t, i18n } = useTranslation();
     const { theme, toggleTheme } = useTheme();
+    const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
 
-    const { data: dbHealth } = useQuery({
+    const { data: dbHealth, dataUpdatedAt } = useQuery({
         queryKey: ['dbHealth'],
         queryFn: adminApi.getDbHealth,
-        refetchInterval: 30000,
+        refetchInterval: 5000, // Update every 5 seconds for real-time feel
         retry: 1,
     });
+
+    // Track when data was last updated
+    useEffect(() => {
+        if (dataUpdatedAt) {
+            setLastUpdated(new Date(dataUpdatedAt));
+        }
+    }, [dataUpdatedAt]);
 
     const toggleLanguage = () => {
         const newLang = i18n.language === 'en' ? 'de' : 'en';
@@ -36,6 +48,15 @@ export function Layout() {
     };
 
     const isConnected = dbHealth?.status === 'ok';
+    const stats = dbHealth?.stats;
+
+    // Format time ago
+    const getTimeAgo = () => {
+        const seconds = Math.floor((Date.now() - lastUpdated.getTime()) / 1000);
+        if (seconds < 5) return 'just now';
+        if (seconds < 60) return `${seconds}s ago`;
+        return `${Math.floor(seconds / 60)}m ago`;
+    };
 
     return (
         <div className="layout">
@@ -67,14 +88,67 @@ export function Layout() {
                 </nav>
 
                 <div className="sidebar-footer">
-                    <div className={`db-status ${isConnected ? 'connected' : 'disconnected'}`}>
-                        <span className="status-dot" />
-                        <span className="status-text">
-                            {isConnected ? t('dashboard.connected') : t('dashboard.disconnected')}
-                        </span>
-                        {dbHealth?.latency_ms && (
-                            <span className="latency">{dbHealth.latency_ms}ms</span>
-                        )}
+                    {/* Status Panel */}
+                    <div className="status-panel">
+                        <div className="status-header">
+                            <Database size={14} />
+                            <span>System Status</span>
+                            <span className={`status-indicator ${isConnected ? 'online' : 'offline'}`} />
+                        </div>
+
+                        <div className="status-items">
+                            <div className="status-item">
+                                <span className="status-label">
+                                    <Zap size={12} />
+                                    Latency
+                                </span>
+                                <span className={`status-value ${dbHealth?.latency_ms && dbHealth.latency_ms < 200 ? 'good' : 'warn'}`}>
+                                    {dbHealth?.latency_ms ?? '—'}ms
+                                </span>
+                            </div>
+
+                            {stats && (
+                                <>
+                                    <div className="status-item">
+                                        <span className="status-label">
+                                            <Users size={12} />
+                                            Users
+                                        </span>
+                                        <span className="status-value">{stats.users}</span>
+                                    </div>
+
+                                    <div className="status-item">
+                                        <span className="status-label">
+                                            <MessageSquare size={12} />
+                                            Messages
+                                        </span>
+                                        <span className="status-value">{stats.messages.toLocaleString()}</span>
+                                    </div>
+
+                                    <div className="status-item">
+                                        <span className="status-label">
+                                            <Clock size={12} />
+                                            Last Hour
+                                        </span>
+                                        <span className="status-value highlight">{stats.messages_last_hour}</span>
+                                    </div>
+
+                                    {stats.errors > 0 && (
+                                        <div className="status-item">
+                                            <span className="status-label error">
+                                                <AlertTriangle size={12} />
+                                                Errors
+                                            </span>
+                                            <span className="status-value error">{stats.errors}</span>
+                                        </div>
+                                    )}
+                                </>
+                            )}
+                        </div>
+
+                        <div className="status-footer">
+                            Updated {getTimeAgo()}
+                        </div>
                     </div>
 
                     <div className="controls">

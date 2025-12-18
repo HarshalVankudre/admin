@@ -106,4 +106,12 @@ export interface DbHealth {
     status: string;
     latency_ms: number;
     server_time: string;
+    stats?: {
+        users: number;
+        conversations: number;
+        messages: number;
+        messages_last_hour: number;
+        errors: number;
+    };
 }
+
