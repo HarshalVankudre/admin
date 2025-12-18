@@ -1,23 +1,77 @@
 /**
- * Conversation detail page
+ * Conversation detail page with message search and filters
  */
+import { useState, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
-import { ArrowLeft, User, Bot, AlertTriangle, Clock, Wrench } from 'lucide-react';
+import {
+    ArrowLeft,
+    User,
+    Bot,
+    AlertTriangle,
+    Clock,
+    Wrench,
+    Search,
+    Filter,
+    X,
+    ChevronDown
+} from 'lucide-react';
 import { adminApi } from '../services';
+import type { Message } from '../types';
 import './ConversationDetail.css';
+
+type RoleFilter = 'all' | 'user' | 'assistant';
 
 export function ConversationDetail() {
     const { id } = useParams<{ id: string }>();
     const { t } = useTranslation();
     const navigate = useNavigate();
 
+    // Search and filters
+    const [searchQuery, setSearchQuery] = useState('');
+    const [roleFilter, setRoleFilter] = useState<RoleFilter>('all');
+    const [showErrorsOnly, setShowErrorsOnly] = useState(false);
+    const [showFilters, setShowFilters] = useState(false);
+
     const { data, isLoading } = useQuery({
         queryKey: ['conversation', id],
         queryFn: () => adminApi.getConversation(Number(id)),
         enabled: !!id,
     });
+
+    // Filter messages based on search and filters
+    const filteredMessages = useMemo(() => {
+        if (!data?.messages) return [];
+
+        return data.messages.filter((msg) => {
+            // Search filter
+            if (searchQuery) {
+                const query = searchQuery.toLowerCase();
+                const matchesContent = msg.content.toLowerCase().includes(query);
+                const matchesTools = msg.tools_used?.some(t => t.toLowerCase().includes(query));
+                const matchesError = msg.error?.toLowerCase().includes(query);
+                if (!matchesContent && !matchesTools && !matchesError) return false;
+            }
+
+            // Role filter
+            if (roleFilter !== 'all' && msg.role !== roleFilter) return false;
+
+            // Errors only filter
+            if (showErrorsOnly && !msg.error) return false;
+
+            return true;
+        });
+    }, [data?.messages, searchQuery, roleFilter, showErrorsOnly]);
+
+    const hasActiveFilters = roleFilter !== 'all' || showErrorsOnly;
+    const errorCount = data?.messages.filter(m => m.error).length || 0;
+
+    const clearFilters = () => {
+        setSearchQuery('');
+        setRoleFilter('all');
+        setShowErrorsOnly(false);
+    };
 
     if (isLoading) {
         return (
@@ -35,7 +89,7 @@ export function ConversationDetail() {
         );
     }
 
-    const { conversation, messages } = data;
+    const { conversation } = data;
 
     return (
         <div className="page conversation-detail">
@@ -53,12 +107,12 @@ export function ConversationDetail() {
                         <span>{conversation.display_name || conversation.email || 'Unknown User'}</span>
                         <span className="separator">•</span>
                         <span>{conversation.total_messages} {t('conversations.messages').toLowerCase()}</span>
-                        {conversation.error_count > 0 && (
+                        {errorCount > 0 && (
                             <>
                                 <span className="separator">•</span>
                                 <span className="error-count">
                                     <AlertTriangle size={14} />
-                                    {conversation.error_count} {t('conversations.errors').toLowerCase()}
+                                    {errorCount} {t('conversations.errors').toLowerCase()}
                                 </span>
                             </>
                         )}
@@ -66,48 +120,160 @@ export function ConversationDetail() {
                 </div>
             </header>
 
-            <div className="messages-container">
-                {messages.map((msg) => (
-                    <div
-                        key={msg.id}
-                        className={`message ${msg.role} ${msg.error ? 'has-error' : ''}`}
-                    >
-                        <div className="message-avatar">
-                            {msg.role === 'user' ? <User size={20} /> : <Bot size={20} />}
-                        </div>
+            {/* Search and Filter Bar */}
+            <div className="message-toolbar">
+                <div className="search-wrapper">
+                    <Search size={18} className="search-icon" />
+                    <input
+                        type="text"
+                        placeholder={t('common.search')}
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="search-input"
+                    />
+                    {searchQuery && (
+                        <button onClick={() => setSearchQuery('')} className="clear-btn">
+                            <X size={16} />
+                        </button>
+                    )}
+                </div>
 
-                        <div className="message-content">
-                            <div className="message-header">
-                                <span className="message-role">{msg.role}</span>
-                                <span className="message-time">
-                                    {new Date(msg.timestamp).toLocaleString()}
-                                </span>
-                                {msg.response_time_ms && (
-                                    <span className="message-response-time">
-                                        <Clock size={12} />
-                                        {msg.response_time_ms}ms
-                                    </span>
-                                )}
-                            </div>
+                <button
+                    className={`filter-toggle ${showFilters ? 'active' : ''} ${hasActiveFilters ? 'has-filters' : ''}`}
+                    onClick={() => setShowFilters(!showFilters)}
+                >
+                    <Filter size={18} />
+                    <span>Filters</span>
+                    {hasActiveFilters && <span className="filter-badge">!</span>}
+                    <ChevronDown size={16} className={showFilters ? 'rotated' : ''} />
+                </button>
+            </div>
 
-                            <div className="message-text">{msg.content}</div>
-
-                            {msg.tools_used && msg.tools_used.length > 0 && (
-                                <div className="message-tools">
-                                    <Wrench size={14} />
-                                    <span>{msg.tools_used.join(', ')}</span>
-                                </div>
-                            )}
-
-                            {msg.error && (
-                                <div className="message-error">
-                                    <AlertTriangle size={14} />
-                                    <span>{msg.error}</span>
-                                </div>
-                            )}
+            {/* Filters Panel */}
+            {showFilters && (
+                <div className="message-filters">
+                    <div className="filter-group">
+                        <label className="filter-label">{t('messages.role')}</label>
+                        <div className="filter-buttons">
+                            <button
+                                className={`filter-btn ${roleFilter === 'all' ? 'active' : ''}`}
+                                onClick={() => setRoleFilter('all')}
+                            >
+                                {t('filters.all')}
+                            </button>
+                            <button
+                                className={`filter-btn ${roleFilter === 'user' ? 'active' : ''}`}
+                                onClick={() => setRoleFilter('user')}
+                            >
+                                <User size={14} /> User
+                            </button>
+                            <button
+                                className={`filter-btn ${roleFilter === 'assistant' ? 'active' : ''}`}
+                                onClick={() => setRoleFilter('assistant')}
+                            >
+                                <Bot size={14} /> Assistant
+                            </button>
                         </div>
                     </div>
-                ))}
+
+                    <div className="filter-group">
+                        <label className="filter-label">{t('filters.hasErrors')}</label>
+                        <button
+                            className={`filter-btn error-btn ${showErrorsOnly ? 'active' : ''}`}
+                            onClick={() => setShowErrorsOnly(!showErrorsOnly)}
+                        >
+                            <AlertTriangle size={14} />
+                            {showErrorsOnly ? t('filters.withErrors') : t('filters.all')}
+                        </button>
+                    </div>
+
+                    {hasActiveFilters && (
+                        <button onClick={clearFilters} className="clear-filters-btn">
+                            <X size={14} />
+                            {t('filters.clear')}
+                        </button>
+                    )}
+                </div>
+            )}
+
+            {/* Results count */}
+            {(searchQuery || hasActiveFilters) && (
+                <div className="results-count">
+                    {filteredMessages.length} of {data.messages.length} messages
+                    {searchQuery && <span> matching "{searchQuery}"</span>}
+                </div>
+            )}
+
+            {/* Messages */}
+            <div className="messages-container">
+                {filteredMessages.length === 0 ? (
+                    <div className="no-messages">
+                        {t('messages.noMessages')}
+                    </div>
+                ) : (
+                    filteredMessages.map((msg) => (
+                        <MessageCard key={msg.id} message={msg} searchQuery={searchQuery} />
+                    ))
+                )}
+            </div>
+        </div>
+    );
+}
+
+// Separate component for message card
+interface MessageCardProps {
+    message: Message;
+    searchQuery: string;
+}
+
+function MessageCard({ message: msg, searchQuery }: MessageCardProps) {
+    // Highlight search matches
+    const highlightText = (text: string) => {
+        if (!searchQuery) return text;
+
+        const regex = new RegExp(`(${searchQuery.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+        const parts = text.split(regex);
+
+        return parts.map((part, i) =>
+            regex.test(part) ? <mark key={i} className="highlight">{part}</mark> : part
+        );
+    };
+
+    return (
+        <div className={`message ${msg.role} ${msg.error ? 'has-error' : ''}`}>
+            <div className="message-avatar">
+                {msg.role === 'user' ? <User size={20} /> : <Bot size={20} />}
+            </div>
+
+            <div className="message-content">
+                <div className="message-header">
+                    <span className="message-role">{msg.role}</span>
+                    <span className="message-time">
+                        {new Date(msg.timestamp).toLocaleString()}
+                    </span>
+                    {msg.response_time_ms && (
+                        <span className="message-response-time">
+                            <Clock size={12} />
+                            {msg.response_time_ms}ms
+                        </span>
+                    )}
+                </div>
+
+                <div className="message-text">{highlightText(msg.content)}</div>
+
+                {msg.tools_used && msg.tools_used.length > 0 && (
+                    <div className="message-tools">
+                        <Wrench size={14} />
+                        <span>{msg.tools_used.join(', ')}</span>
+                    </div>
+                )}
+
+                {msg.error && (
+                    <div className="message-error">
+                        <AlertTriangle size={14} />
+                        <span>{highlightText(msg.error)}</span>
+                    </div>
+                )}
             </div>
         </div>
     );
