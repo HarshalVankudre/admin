@@ -18,7 +18,7 @@ router = APIRouter(tags=["health"])
 @router.get("/health")
 async def service_health():
     """Service health check."""
-    return {"status": "ok", "service": "ruko-admin"}
+    return {"status": "ok", "service": "rueko-admin"}
 
 
 @router.get("/admin/db-health")

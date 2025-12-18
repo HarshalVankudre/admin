@@ -1,7 +1,7 @@
 """
 Create Admin Dashboard Database
 
-Creates the admin database and tables used by the Ruko Admin Dashboard.
+Creates the admin database and tables used by the RÜKO Admin Dashboard.
 """
 
 from __future__ import annotations

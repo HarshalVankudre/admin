@@ -1,7 +1,7 @@
 """
 Admin Dashboard Service
 
-Standalone FastAPI application for the Ruko Admin Dashboard.
+Standalone FastAPI application for the RÜKO Admin Dashboard.
 Provides a web UI and REST API for monitoring chatbot analytics.
 """
 import os
@@ -53,8 +53,8 @@ async def lifespan(app: FastAPI):
 def create_app() -> FastAPI:
     """Application factory."""
     app = FastAPI(
-        title="Ruko Admin Dashboard",
-        description="Admin dashboard for monitoring Ruko chatbot analytics",
+        title="RÜKO Admin Dashboard",
+        description="Admin dashboard for monitoring RÜKO chatbot analytics",
         version="1.0.0",
         lifespan=lifespan,
     )

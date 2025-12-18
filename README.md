@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🚀 Ruko Admin Dashboard
+# 🚀 RÜKO Admin Dashboard
 
 <p>
   <img src="https://img.shields.io/badge/FastAPI-009688?style=for-the-badge&logo=fastapi&logoColor=white" alt="FastAPI"/>
@@ -10,7 +10,7 @@
 </p>
 
 <p>
-  <strong>A sleek, modern admin dashboard for monitoring and managing your Ruko AI chatbot platform.</strong>
+  <strong>A sleek, modern admin dashboard for monitoring and managing your RÜKO AI chatbot platform.</strong>
 </p>
 
 <p>
@@ -72,7 +72,7 @@
 
 - **Python 3.11+**
 - **Node.js 18+** (for frontend)
-- **PostgreSQL** database with Ruko schema
+- **PostgreSQL** database with RÜKO schema
 - (Optional) **Docker** for containerized deployment
 
 ### Backend Installation
@@ -130,10 +130,10 @@ http://localhost:8080/dashboard
 
 ```bash
 # Build the image
-docker build -t ruko-admin .
+docker build -t rueko-admin .
 
 # Run the container
-docker run --rm -p 8080:8080 --env-file .env ruko-admin
+docker run --rm -p 8080:8080 --env-file .env rueko-admin
 ```
 
 ### Docker Compose (Optional)
@@ -141,7 +141,7 @@ docker run --rm -p 8080:8080 --env-file .env ruko-admin
 ```yaml
 version: '3.8'
 services:
-  ruko-admin:
+  rueko-admin:
     build: .
     ports:
       - "8080:8080"
@@ -278,6 +278,6 @@ This project is proprietary software. All rights reserved.
 
 <div align="center">
 
-[⬆ Back to Top](#-ruko-admin-dashboard)
+[⬆ Back to Top](#-rüko-admin-dashboard)
 
 </div>

@@ -1,5 +1,5 @@
 """
-Ruko Admin Dashboard Backend
+RÜKO Admin Dashboard Backend
 
 A FastAPI-based admin dashboard for monitoring chatbot analytics.
 """

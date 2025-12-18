@@ -43,7 +43,7 @@ export function Layout() {
                 <div className="sidebar-header">
                     <div className="logo">
                         <Activity className="logo-icon" />
-                        <span className="logo-text">Ruko Admin</span>
+                        <span className="logo-text">RÜKO Admin</span>
                     </div>
                 </div>
 
