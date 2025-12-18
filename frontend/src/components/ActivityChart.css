@@ -1,0 +1,35 @@
+/**
+ * Chart card styles
+ */
+
+.chart-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 20px;
+}
+
+.chart-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text);
+    margin: 0 0 16px 0;
+}
+
+.chart-container {
+    width: 100%;
+}
+
+/* Recharts tooltip customization */
+.recharts-tooltip-wrapper {
+    outline: none;
+}
+
+.recharts-default-tooltip {
+    font-size: 0.85rem !important;
+}
+
+.recharts-legend-item-text {
+    color: var(--text-muted) !important;
+    font-size: 0.8rem;
+}

@@ -71,10 +71,11 @@
 ### Prerequisites
 
 - **Python 3.11+**
+- **Node.js 18+** (for frontend)
 - **PostgreSQL** database with Ruko schema
 - (Optional) **Docker** for containerized deployment
 
-### Installation
+### Backend Installation
 
 ```bash
 # 1. Clone the repository
@@ -85,7 +86,7 @@ cd admin
 python -m venv venv
 source venv/bin/activate  # On Windows: venv\Scripts\activate
 
-# 3. Install dependencies
+# 3. Install backend dependencies
 pip install -r backend/requirements.txt
 
 # 4. Configure environment
@@ -95,8 +96,24 @@ cp .env.example .env
 # 5. Initialize database schema (first time only)
 python backend/create_db.py
 
-# 6. Run the application
+# 6. Run the backend
 python backend/main.py
+```
+
+### Frontend Installation
+
+```bash
+# 1. Navigate to frontend directory
+cd frontend
+
+# 2. Install dependencies
+npm install
+
+# 3. Run development server (with API proxy to backend)
+npm run dev
+
+# Or build for production
+npm run build
 ```
 
 ### 🌐 Access the Dashboard
@@ -207,25 +224,31 @@ ADMIN_DB_INIT_ON_STARTUP=0
 
 ```
 admin/
-├── 📁 backend/              # Backend API server
+├── 📁 backend/              # Backend API server (Python/FastAPI)
 │   ├── 📄 main.py           # FastAPI application entry point
 │   ├── 📄 config.py         # Configuration settings
 │   ├── 📄 database.py       # Database connection pool & utilities
 │   ├── 📁 routes/           # API route handlers
-│   │   ├── 📄 __init__.py   # Route aggregation
 │   │   ├── 📄 health.py     # Health check endpoints
 │   │   ├── 📄 stats.py      # Statistics & activity endpoints
 │   │   ├── 📄 users.py      # User management endpoints
 │   │   ├── 📄 conversations.py  # Conversation endpoints
 │   │   └── 📄 messages.py   # Message endpoints
 │   ├── 📄 create_db.py      # Database schema initialization
-│   ├── 📄 requirements.txt  # Python dependencies
-│   └── 📄 __init__.py       # Package init
-├── 📁 frontend/             # Frontend UI
-│   └── 📄 dashboard.html    # Single-page admin dashboard
+│   └── 📄 requirements.txt  # Python dependencies
+├── 📁 frontend/             # Frontend UI (React/TypeScript)
+│   ├── 📁 src/
+│   │   ├── 📁 components/   # Reusable UI components
+│   │   ├── 📁 pages/        # Page components
+│   │   ├── 📁 contexts/     # React contexts (Theme)
+│   │   ├── 📁 services/     # API services
+│   │   ├── 📁 i18n/         # Translations (EN/DE)
+│   │   ├── 📁 types/        # TypeScript types
+│   │   └── 📄 App.tsx       # Main app component
+│   ├── 📄 package.json      # Node dependencies
+│   └── 📄 vite.config.ts    # Vite configuration
 ├── 📄 Dockerfile            # Container build instructions
 ├── 📄 .env.example          # Environment template
-├── 📄 .gitignore            # Git ignored files
 └── 📄 README.md             # Documentation
 ```
 
@@ -242,7 +265,9 @@ admin/
 |-----------|------------|
 | **Backend** | FastAPI (Python 3.11) |
 | **Database** | PostgreSQL with psycopg2 |
-| **Frontend** | Vanilla HTML/CSS/JS (embedded) |
+| **Frontend** | React 19 + TypeScript + Vite |
+| **Charts** | Recharts |
+| **i18n** | react-i18next (EN/DE) |
 | **Deployment** | Docker + Uvicorn |
 
 ## 📜 License
