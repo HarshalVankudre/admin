@@ -30,7 +30,7 @@ export function Layout() {
     const { data: dbHealth, dataUpdatedAt } = useQuery({
         queryKey: ['dbHealth'],
         queryFn: adminApi.getDbHealth,
-        refetchInterval: 5000, // Update every 5 seconds for real-time feel
+        refetchInterval: 1000, // Update every 1 second for real-time latency
         retry: 1,
     });
 
